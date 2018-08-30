@@ -175,6 +175,13 @@ namespace zypp {
       static int _v = getZYPP_MEDIA_CURL_IPRESOLVE();
       return _v;
     }
+
+    inline bool ZYPP_NO_HEAD_REQUESTS()
+    {
+      static bool _v = getenv( "ZYPP_NO_HEAD_REQUESTS" );
+      return _v;
+    }
+
   } // namespace env
   ///////////////////////////////////////////////////////////////////
 
@@ -450,9 +457,14 @@ void fillSettingsFromUrl( const Url &url, TransferSettings &s )
     }
 
     // workarounds
-    param = url.getQueryParam("head_requests");
-    if( !param.empty() && param == "no" )
-        s.setHeadRequestsAllowed(false);
+    if ( env::ZYPP_NO_HEAD_REQUESTS() )
+      s.setHeadRequestsAllowed(false);
+    else
+    {
+      param = url.getQueryParam("head_requests");
+      if( !param.empty() && param == "no" )
+	s.setHeadRequestsAllowed(false);
+    }
 }
 
 /**
